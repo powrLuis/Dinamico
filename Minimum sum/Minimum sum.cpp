@@ -3,18 +3,84 @@
 
 #include <iostream>
 #include <vector>
+#include <algorithm>
 using namespace std;
 class Solution {
 public:
+    int cell(vector<vector<int>>& matrix, int x, int y)
+    {
+        if (x==matrix.size()-1)
+        {
+            return matrix[x][y];
+        }
+
+        vector<int> fall;
+
+        if (y>0)
+        {
+            fall.push_back(cell(matrix, x + 1, y - 1));
+        }
+        fall.push_back(cell(matrix, x + 1, y));
+        if (y<matrix.size()-1)
+        {
+            fall.push_back(cell(matrix, x + 1, y + 1));
+        }
+        auto menor = min_element(fall.begin(), fall.end());
+        return *menor + matrix[x][y];
+    }
+    vector<vector<int>> fill(vector<vector<int>>& matrix)
+    {
+        vector<vector<int>> temp = matrix;
+        int n = temp.size();
+        for (int i = n - 1; i > 0; i--)
+        {
+            for (size_t j = 0; j < n; j++)
+            {
+                int up = temp[i][j];
+                if (j > 0 && temp[i][j - 1] < up)
+                {
+                    up = temp[i][j - 1];
+                }
+                if (j < n - 1 && temp[i][j + 1] < up)
+                {
+                    up = temp[i][j + 1];
+                }
+                temp[i - 1][j] += up;
+            }
+        }
+        return temp;
+    }
     int minFallingPathSum(vector<vector<int>>& matrix) {
+        //NAIVE
+        /*vector<int> fall;
+        for (size_t i = 0; i < matrix.size(); i++)
+        {
+            fall.push_back(cell(matrix, 0, i));
+        }
+        auto menor = min_element(fall.begin(), fall.end());
+        return *menor;*/
+
+        auto values = fill(matrix);
+        vector<int> fall;
+        for (size_t i = 0; i < matrix.size(); i++)
+        {
+            fall.push_back(values[0][i]);
+        }
+        auto menor = min_element(fall.begin(), fall.end());
+        return *menor;
 
     }
 };
 
 int main()
 {
-
-    std::cout << "Hello World!\n";
+    Solution s;
+    vector<vector<int>> m1 = { {2,1,3},{6,5,4},{7,8,9} };
+    std::cout << "resultado: "<<s.minFallingPathSum(m1) << endl;
+    vector<vector<int>> m2 = { {-19,57},{-40,-5}};
+    std::cout << "resultado: " << s.minFallingPathSum(m2) << endl;
+    vector<vector<int>> m3 = { {-48} };
+    std::cout << "resultado: " << s.minFallingPathSum(m3) << endl;
 }
 
 // Ejecutar programa: Ctrl + F5 o menú Depurar > Iniciar sin depurar
